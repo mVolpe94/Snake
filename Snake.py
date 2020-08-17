@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 
 SCREEN_TITLE = "Snake"
 SCREEN_WIDTH = 1200
@@ -22,7 +23,7 @@ font = pygame.font.SysFont("comicsans", 75)
 
 class Game:
 
-    TICK_SPEED = 4
+    TICK_SPEED = 10
 
     def __init__(self, title, width, height):
         self.title = title
@@ -36,33 +37,15 @@ class Game:
     def runGameLoop(self):
         isGameRunning = True
 
-        direction = 0
-        gameScreen.fill(BLACK_COLOR)
-
-
-
-        player = SNAKE(WHITE_COLOR, 570, 360, 3, 30, 30)
+        player = SNAKE(WHITE_COLOR, 570, 360, 0, 5, 30, 30)
 
         while isGameRunning:
             gameScreen.fill(BLACK_COLOR)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    isGameRunning = False
-                elif event.type == pygame.KEYDOWN:
-                    if direction != 2 and event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        direction = 1                      
-                    elif direction != 1 and event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        direction = 2
-                    elif direction != 4 and event.key == pygame.K_UP or event.key == pygame.K_w:
-                        direction = 3                        
-                    elif direction != 3 and event.key == pygame.K_DOWN or event.key == pygame.K_s: 
-                        direction = 4                          
-                print(event)
 
+            player.move()
+            player.pos()
 
-            player.move(direction)
-            player.drawLength()
-
+            
             clock.tick(self.TICK_SPEED)
 
 class GameObject:
@@ -74,34 +57,90 @@ class GameObject:
         self.width = width
         self.height = height
         
+    def food(self):
+        pass
+
 
 class SNAKE(GameObject):
 
+    body = []
+    turns = {}
+    posx = [570, 570, 570, 570, 570]
+    posy = [360, 360, 360, 360, 360]
 
-    def __init__(self, color, x, y, length, width, height):
+    def __init__(self, color, x, y, direction, length, width, height):
         super().__init__(color, x, y, width, height)
 
         self.length = length
-
-    def move(self, direction):
-
         self.direction = direction
 
-        if direction == 1:
+    def move(self):
+
+        print(self.direction)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if self.direction != 2 != 1 and event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                    self.direction = 1           
+                elif self.direction != 1 and event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    self.direction = 2                    
+                elif self.direction != 4 and event.key == pygame.K_UP or event.key == pygame.K_w:
+                    self.direction = 3                        
+                elif self.direction != 3 and event.key == pygame.K_DOWN or event.key == pygame.K_s: 
+                    self.direction = 4                          
+                print(event)
+                print(self.turns)
+
+        if self.direction == 1:
             self.xPos += 30
-        if direction == 2:
+        if self.direction == 2:
             self.xPos -= 30
-        if direction == 3:
+        if self.direction == 3:
             self.yPos -= 30
-        if direction == 4:
+        if self.direction == 4:
             self.yPos += 30
 
-    def drawLength(self):
+        if self.xPos < 0:
+            self.xPos = 1200
+        elif self.xPos == 1200:
+            self.xPos = 0
+        if self.yPos < 0:
+            self.yPos = 780
+        elif self.yPos== 780:
+            self.yPos = 0
 
-        pygame.draw.rect(gameScreen, WHITE_COLOR, [self.xPos, self.yPos, 30, 30])
+    def pos(self):
+
+        self.posx.insert(0, self.xPos)
+        self.posy.insert(0, self.yPos)
+
+        if len(self.posx) > self.length:
+            self.posx.pop(self.length)
+        if len(self.posy) > self.length:
+            self.posy.pop(self.length)
+        #for n in self.posx and self.posy:
+        self.drawLength()
+
+        print(self.posx)
+        print(self.posy)
         
+    def drawLength(self):
+        
+        pygame.draw.rect(gameScreen, WHITE_COLOR, [self.posx[0], self.posy[0], 30, 30])
+
         pygame.display.update()
 
+
+
+       
+        
+
+
+
+        
+
+        
         
 
     #def Move(self, xDirection, yDirection):
